@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import './App.css'
 import { useMultiStepForm } from './useMultiStepForm'
@@ -6,15 +6,34 @@ import UserForm from './UserForm'
 import AccountForm from './AccountForm'
 import AddressForm from './AddressForm'
 
+const INITIAL_DATA = {
+  firstName: '',
+  lastName: '',
+  age: '',
+  strett: '',
+  city: '',
+  state: '',
+  zip: '',
+  email: '',
+  password: ''
+}
+
 function App() {
+  const [data, setData] = useState(INITIAL_DATA)
+  const updateFields = (fields) => {
+    setData(prev => {
+      return { ...prev, ...fields }
+    })
+  }
   const { steps, currentStepIndex, step, isFirstStep, isLastStep, next, back } = useMultiStepForm([
-    <UserForm/>,
-    <AddressForm/>,
-    <AccountForm/>
+    <UserForm {...data} updateFields={updateFields} />,
+    <AddressForm {...data} updateFields={updateFields} />,
+    <AccountForm {...data} updateFields={updateFields} />
   ])
   const onSubmit = (e) => {
     e.preventDefault()
-    next()
+    if (!isLastStep) next()
+    console.log(data)
   }
   return (
     <div
@@ -42,7 +61,7 @@ function App() {
             justifyContent: "flex-end"
           }}  
         >
-          {currentStepIndex !== 0 && <button type="button" onClick={back}>Back</button>}
+          {!isFirstStep && <button type="button" onClick={back}>Back</button>}
           <button type="submit">{isLastStep ? "Finish" : "Next"}</button>
         </div>
       </form>
